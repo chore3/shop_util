@@ -33,6 +33,11 @@ on load:
 
 # ======================================================================================================================================================
 
+function banned_slot() :: item:
+    return glass_pane named "&c🚫"
+
+# ======================================================================================================================================================
+
 function is_editor(mode:text) :: number:
     # return 0 if no restrictions
     # return 1 if movement prohibited
@@ -59,7 +64,7 @@ function footer(row:number, target:player, mode:text):
     set {_i} to (({_row} - 1) * 9)
     set {_q} to ({_row} * 9)
     loop 9 times:
-        set {_item} to glass_pane named "&c🚫"
+        set {_item} to banned_slot()
         set {_name} to {footer_items::%loop-number%::name}
         if {_name} is set:
             if {footer_items::%loop-number%::mode} is 1:
@@ -90,7 +95,7 @@ function fill_shop_item(row:number, shop_name:text, player:player):
 function fill_glass_pane(row:number, player:player):
     set {_i} to 0
     loop {_row} * 9 times:
-        set slot {_i} of {_player}'s current inventory to glass_pane named "&c🚫"
+        set slot {_i} of {_player}'s current inventory to banned_slot()
         add 1 to {_i}
 
 function fill_easy_db_gui(row:number, player:player):
