@@ -59,7 +59,7 @@ function footer(row:number, target:player, mode:text):
     set {_i} to (({_row} - 1) * 9)
     set {_q} to ({_row} * 9)
     loop 9 times:
-        set {_item} to red_stained_glass_pane named "&c🚫&6&lクリック不可"
+        set {_item} to glass_pane named "&c🚫"
         set {_name} to {footer_items::%loop-number%::name}
         if {_name} is set:
             if {footer_items::%loop-number%::mode} is 1:
@@ -90,14 +90,14 @@ function fill_shop_item(row:number, shop_name:text, player:player):
 function fill_glass_pane(row:number, player:player):
     set {_i} to 0
     loop {_row} * 9 times:
-        set slot {_i} of {_player}'s current inventory to light_gray_stained_glass_pane
+        set slot {_i} of {_player}'s current inventory to glass_pane named "&c🚫"
         add 1 to {_i}
 
 function fill_easy_db_gui(row:number, player:player):
     fill_glass_pane({_row}, {_player})
     set {_i} to 0
     loop 9 times:
-        set slot {_i} of {_player}'s current inventory to glass_pane
+        set slot {_i} of {_player}'s current inventory to iron_bars
         add 1 to {_i}
     set slot 4 of {_player}'s current inventory to air
     set {_i} to 9
