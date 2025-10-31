@@ -4,11 +4,6 @@ variables:
 
 # ======================================================================================================================================================
 
-function open_shop_gui(row:number, logo:text, shop_name:text, mode:text, player:player):
-    open chest inventory with {_row} row named "%{_logo}% §f| §d§n%{_shop_name}%§r §c(%{_mode}%)" to {_player}
-
-# ======================================================================================================================================================
-
 on rightclick on emerald_block:
     if is_eventblock(event-block's location) is 1:
         open chest inventory with ({GUI_ROW} + 1) row named "&d&lショップ" to player
