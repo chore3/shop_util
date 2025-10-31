@@ -47,7 +47,7 @@ function is_editor(mode:text) :: number:
     else if {_mode} ends with "(Edit)":
         return 2
     else if {_mode} ends with "(Easy_DB)":
-        return 1
+        return 3
     else if {_mode} ends with "(Mode)":
         return 1
     return -1
@@ -160,6 +160,15 @@ on inventory click:
         open anvil gui {_gui} to event-player
         stop
     
+    # type 3
+    if is_editor(uncoloured {_curr_shop_title}) is 3:
+        if index of event-slot is between 9 and ({_row} * 9):
+            cancel event
+        else if index of event-slot is between 0 and 3:
+            cancel event
+        else if index of event-slot is between 5 and 9:
+            cancel event
+
     # type 1
     if is_editor(uncoloured {_curr_shop_title}) is 1:
         cancel event
