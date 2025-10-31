@@ -1,0 +1,36 @@
+function init_editor_shop(row:number, shop_name:text, shop_type:text, player:player):
+        set {_mode} to "%{footer_items::1::name}%"
+        open_shop_gui({_row} + 1, {MODE_NAME_LOGO::%{_shop_type}%}, {_shop_name}, {_mode}, {_player})
+        fill_shop_item({_row}, {_shop_name}, {_player})
+        footer({_row} + 1, {_player}, {_mode})
+
+# ======================================================================================================================================================
+
+function fill_glass_pane(row:number, player:player):
+    set {_i} to 0
+    loop {_row} * 9 times:
+        set slot {_i} of {_player}'s current inventory to banned_slot()
+        add 1 to {_i}
+
+# ======================================================================================================================================================
+
+function fill_easy_db_gui(row:number, player:player):
+    fill_glass_pane({_row}, {_player})
+    set {_i} to 0
+    loop 9 times:
+        set slot {_i} of {_player}'s current inventory to iron_bars
+        add 1 to {_i}
+    set slot 4 of {_player}'s current inventory to air
+    set {_i} to 9
+    set slot ({_i} + 2) of {_player}'s current inventory to apple named "&did"
+    set slot ({_i} + 3) of {_player}'s current inventory to name_tag named "&dcustom_model_data"
+    set slot ({_i} + 4) of {_player}'s current inventory to paper named "&ddescription"
+    set slot ({_i} + 5) of {_player}'s current inventory to ender_eye named "&dbuy_val"
+    set slot ({_i} + 6) of {_player}'s current inventory to gold_ingot named "&dsell_val"
+
+function fill_mode_gui(row:number, player:player):
+    fill_glass_pane({_row}, {_player})
+    set slot 10 of {_player}'s current inventory to mode_item(barrel, "normal")
+    set slot 12 of {_player}'s current inventory to mode_item(shulker_box, "bulk")
+    set slot 14 of {_player}'s current inventory to mode_item(enchanting_table, "trade")
+    set slot 16 of {_player}'s current inventory to mode_item(composter, "sell_only")

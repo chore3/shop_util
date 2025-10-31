@@ -1,3 +1,4 @@
+
 function open_shop_gui(row:number, logo:text, shop_name:text, mode:text, player:player):
     open chest inventory with {_row} row named "%{_logo}% §f| §d§n%{_shop_name}%§r §c(%{_mode}%)" to {_player}
 
@@ -34,32 +35,3 @@ function fill_shop_item(row:number, shop_name:text, player:player):
                 delete {shop_data::%{_shop_name}%::items::%loop-number%::*}
             else:
                 set slot loop-number of {_player}'s current inventory to {_id}
-
-function fill_glass_pane(row:number, player:player):
-    set {_i} to 0
-    loop {_row} * 9 times:
-        set slot {_i} of {_player}'s current inventory to banned_slot()
-        add 1 to {_i}
-
-# ======================================================================================================================================================
-
-function fill_easy_db_gui(row:number, player:player):
-    fill_glass_pane({_row}, {_player})
-    set {_i} to 0
-    loop 9 times:
-        set slot {_i} of {_player}'s current inventory to iron_bars
-        add 1 to {_i}
-    set slot 4 of {_player}'s current inventory to air
-    set {_i} to 9
-    set slot ({_i} + 2) of {_player}'s current inventory to apple named "&did"
-    set slot ({_i} + 3) of {_player}'s current inventory to name_tag named "&dcustom_model_data"
-    set slot ({_i} + 4) of {_player}'s current inventory to paper named "&ddescription"
-    set slot ({_i} + 5) of {_player}'s current inventory to ender_eye named "&dbuy_val"
-    set slot ({_i} + 6) of {_player}'s current inventory to gold_ingot named "&dsell_val"
-
-function fill_mode_gui(row:number, player:player):
-    fill_glass_pane({_row}, {_player})
-    set slot 10 of {_player}'s current inventory to mode_item(barrel, "normal")
-    set slot 12 of {_player}'s current inventory to mode_item(shulker_box, "bulk")
-    set slot 14 of {_player}'s current inventory to mode_item(enchanting_table, "trade")
-    set slot 16 of {_player}'s current inventory to mode_item(composter, "sell_only")

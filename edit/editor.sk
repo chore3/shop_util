@@ -106,6 +106,16 @@ on inventory click:
         set left item of {_gui} to paper named "&a名前入力" with lore "&aクリックで確定"
         open anvil gui {_gui} to event-player
         stop
+
+    # type 1
+    if is_editor(uncoloured {_curr_shop_title}) is 1:
+        if event-slot is not banned_slot():
+            loop {MODE_LIST::*}:
+                if uncoloured name of event-slot start with uncoloured loop-value:
+                    close player's inventory
+                    init_editor_shop({_row} - 1, {_shop_name}, loop-index, player)
+        cancel event
+        stop
     
     # type 3
     if is_editor(uncoloured {_curr_shop_title}) is 3:
@@ -116,11 +126,7 @@ on inventory click:
         else if index of event-slot is between 5 and 9:
             cancel event
         stop
-
-    # type 1
-    if is_editor(uncoloured {_curr_shop_title}) is 1:
-        cancel event
-        stop
+    
     # type 0
     wait 1 tick
     set {_select_item} to event-slot
@@ -171,9 +177,7 @@ command /edit_shop <name:text> [<row:number>] [<shop_type:text>]:
                 set {_shop_type} to "normal"
             set {shop_data::%{_name}%::row} to {_row}
             set {shop_data::%{_name}%::shop_type} to {_shop_type}
-            open_shop_gui({_row} + 1, {MODE_NAME_LOGO::%{_shop_type}%}, {_name}, {_mode}, player)
-            fill_shop_item({_row}, {_name}, player)
-            footer({_row} + 1, player, {_mode})
+            init_editor_shop({_row} + 1, {_name}, {_shop_type}, player)
             stop
         
         set {_saved_row} to {shop_data::%{_name}%::row}
@@ -196,8 +200,5 @@ command /edit_shop <name:text> [<row:number>] [<shop_type:text>]:
             set {_row} to {_saved_row}
         if {_shop_type} is not set:
             set {_shop_type} to {_saved_type}
-
-        set {_mode} to "%{footer_items::1::name}%"
-        open_shop_gui({_row} + 1, {MODE_NAME_LOGO::%{_shop_type}%}, {_name}, {_mode}, player)
-        fill_shop_item({_row}, {_name}, player)
-        footer({_row} + 1, player, {_mode})
+        
+        init_editor_shop({_row} + 1, {_name}, {_shop_type}, player)
