@@ -152,6 +152,12 @@ on inventory click:
         set {_gui} to a new anvil gui named "&0%{_curr_shop_title}%" with default text "text"
         set left item of {_gui} to paper named "&a名前入力" with lore "&aクリックで確定"
         open anvil gui {_gui} to event-player
+stop
+    
+    # type 1
+    if is_editor(uncoloured {_curr_shop_title}) is 1:
+        cancel event
+        stop
     # type 0
     wait 1 tick
     set {_select_item} to event-slot
