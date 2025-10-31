@@ -129,17 +129,18 @@ on inventory click:
     
     # type 0
     wait 1 tick
-    set {_select_item} to event-slot
-    set {_select_item_id} to type of (slot (index of event-slot) of event-inventory)
-    set {_select_item_custom_model_data} to custom model data of event-slot
-    if:
-        {shop_data::%{_shop_name}%::items::%index of event-slot%::id} is {_select_item_id}
-        {shop_data::%{_shop_name}%::items::%index of event-slot%::custom_model_data} is {_select_item_custom_model_data}
-    then:
-        stop
-    else:
-        set {shop_data::%{_shop_name}%::items::%index of event-slot%::id} to {_select_item_id}
-        set {shop_data::%{_shop_name}%::items::%index of event-slot%::custom_model_data} to {_select_item_custom_model_data}
+    loop {_row} * 9 times:
+        set {_select_item} to loop-number
+        set {_select_item_id} to type of slot loop-number of event-inventory
+        set {_select_item_custom_model_data} to custom model data of {_select_item}
+        if:
+            {shop_data::%{_shop_name}%::items::%loop-number%::id} is {_select_item_id}
+            {shop_data::%{_shop_name}%::items::%loop-number%::custom_model_data} is {_select_item_custom_model_data}
+        then:
+            continue
+        else:
+            set {shop_data::%{_shop_name}%::items::%loop-number%::id} to {_select_item_id}
+            set {shop_data::%{_shop_name}%::items::%loop-number%::custom_model_data} to {_select_item_custom_model_data}
 
 # ======================================================================================================================================================
 # main
