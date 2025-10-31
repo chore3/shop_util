@@ -1,6 +1,5 @@
 variables:
     {MODE_LIST::normal} = "&a§l🛒"
-    #{MODE_LIST::cooldown} = "&b§l⏳"
     {MODE_LIST::bulk} = "&e§l📦"
     {MODE_LIST::trade} = "&6§l💱"
     {MODE_LIST::sell_only} = "&c§l💰"
