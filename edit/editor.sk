@@ -129,18 +129,23 @@ on inventory click:
     
     # type 0
     wait 1 tick
+    set {_i} to -1
     loop {_row} * 9 times:
-        set {_select_item} to loop-number
-        set {_select_item_id} to type of slot loop-number of event-inventory
+        add 1 to {_i}
+        set {_select_item} to {_i}
+        set {_select_item_id} to type of slot {_i} of event-inventory
         set {_select_item_custom_model_data} to custom model data of {_select_item}
         if:
-            {shop_data::%{_shop_name}%::items::%loop-number%::id} is {_select_item_id}
-            {shop_data::%{_shop_name}%::items::%loop-number%::custom_model_data} is {_select_item_custom_model_data}
+            {shop_data::%{_shop_name}%::items::%{_i}%::id} is {_select_item_id}
+            {shop_data::%{_shop_name}%::items::%{_i}%::custom_model_data} is {_select_item_custom_model_data}
         then:
             continue
         else:
-            set {shop_data::%{_shop_name}%::items::%loop-number%::id} to {_select_item_id}
-            set {shop_data::%{_shop_name}%::items::%loop-number%::custom_model_data} to {_select_item_custom_model_data}
+            if "%{_select_item_id}%" is "air":
+                delete {shop_data::%{_shop_name}%::items::%{_i}%::*}
+            else:
+                set {shop_data::%{_shop_name}%::items::%{_i}%::id} to {_select_item_id}
+                set {shop_data::%{_shop_name}%::items::%{_i}%::custom_model_data} to {_select_item_custom_model_data}
 
 # ======================================================================================================================================================
 # main
