@@ -168,6 +168,7 @@ on inventory click:
             cancel event
         else if index of event-slot is between 5 and 9:
             cancel event
+        stop
 
     # type 1
     if is_editor(uncoloured {_curr_shop_title}) is 1:
