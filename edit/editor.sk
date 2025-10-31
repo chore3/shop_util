@@ -21,6 +21,7 @@ function reset_footer_items():
     add_footer_items("Edit", "anvil", 1)
     add_footer_items("Inspect", "writable_book", 1)
     add_footer_items("Mode", "command_block", 1)
+    add_footer_items("Easy_DB", "writable_book", 1)
     add_footer_items("Auto Price", 2)
     broadcast "§7[§dSHOP_UTIL§7] §aフッターメニューが規定値に設定されました"
 
@@ -41,12 +42,11 @@ function is_editor(mode:text) :: number:
         return 0
     else if {_mode} ends with "(Edit)":
         return 2
-    else if {_mode} ends with "(Inspect)":
-        return 2
+    else if {_mode} ends with "(Easy_DB)":
+        return 1
     else if {_mode} ends with "(Mode)":
         return 1
     return -1
-
 
 function fix_db_mode(mode:text) :: number:
     if {_mode} is set:
@@ -86,6 +86,29 @@ function fill_shop_item(row:number, shop_name:text, player:player):
             set custom model data of {_item} to {_cmd}
             set slot loop-number of {_player}'s current inventory to {_id}
 
+function fill_glass_pane(row:number, player:player):
+    set {_i} to 0
+    loop {_row} * 9 times:
+        set slot {_i} of {_player}'s current inventory to light_gray_stained_glass_pane
+        add 1 to {_i}
+
+function fill_easy_db_gui(row:number, player:player):
+    fill_glass_pane({_row}, {_player})
+    set {_i} to 0
+    loop 9 times:
+        set slot {_i} of {_player}'s current inventory to glass_pane
+        add 1 to {_i}
+    set slot 4 of {_player}'s current inventory to air
+    set {_i} to 9
+    set slot ({_i} + 2) of {_player}'s current inventory to apple
+    set slot ({_i} + 3) of {_player}'s current inventory to name_tag
+    set slot ({_i} + 4) of {_player}'s current inventory to paper
+    set slot ({_i} + 5) of {_player}'s current inventory to ender_eye
+    set slot ({_i} + 6) of {_player}'s current inventory to gold_ingot
+
+function fill_mode_gui(row:number, player:player):
+    fill_glass_pane({_row}, {_player})
+
 # ======================================================================================================================================================
 # func
 on inventory click:
@@ -100,16 +123,24 @@ on inventory click:
     set {_shop_name} to uncoloured {_title_split::3}
     set {_row} to rows of event-inventory
     if index of event-slot is between (({_row} - 1) * 9) and (({_row} * 9) - 1):
-        set {_mode} to uncoloured event-item's name
+        set {_new_mode} to uncoloured event-item's name
         loop 9 times:
             if:
-                {footer_items::%loop-number%::name} is {_mode}
+                {footer_items::%loop-number%::name} is {_new_mode}
                 {footer_items::%loop-number%::mode} is 1
             then:
                 close player's inventory
-                open_shop_gui({_row}, {_logo}, {_shop_name}, {_mode}, player)
+                open_shop_gui({_row}, {_logo}, {_shop_name}, {_new_mode}, player)
+                if {_new_mode} is "Normal":
+                    fill_shop_item({_row}, {_shop_name}, player)
+                else if {_new_mode} is "Edit":
+                    fill_glass_pane({_row}, player)
                 fill_shop_item({_row}, {_shop_name}, player)
-                footer({_row}, player, {_mode})
+                else if {_new_mode} is "Mode":
+                    fill_mode_gui({_row}, player)
+                else if {_new_mode} is "Easy_DB":
+                    fill_easy_db_gui({_row}, player)
+                footer({_row}, player, {_new_mode})
                 stop loop
         cancel event
         stop
