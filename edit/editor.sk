@@ -1,0 +1,196 @@
+variables:
+    {MODE_LIST::normal} = "&a§l🛒"
+    #{MODE_LIST::cooldown} = "&b§l⏳"
+    {MODE_LIST::bulk} = "&e§l📦"
+    {MODE_LIST::trade} = "&6§l💱"
+    {MODE_LIST::sell_only} = "&c§l💰"
+
+function add_footer_items(name:text, id:text, mode:number):
+    add 1 to {footer_items::index}
+    set {footer_items::%{footer_items::index}%::name} to "%{_name}%"
+    set {footer_items::%{footer_items::index}%::id} to "%{_id}%"
+    set {footer_items::%{footer_items::index}%::mode} to {_mode}
+
+function add_footer_items(name:text, mode:number):
+    add_footer_items({_name}, "paper", {_mode})
+
+function reset_footer_items():
+    delete {footer_items::*}
+    set {footer_items::index} to 0
+    add_footer_items("Normal", "chest", 1)
+    add_footer_items("Edit", "anvil", 1)
+    add_footer_items("Inspect", "writable_book", 1)
+    add_footer_items("Mode", "command_block", 1)
+    add_footer_items("Auto Price", 2)
+    broadcast "§7[§dSHOP_UTIL§7] §aフッターメニューが規定値に設定されました"
+
+on load:
+    reset_footer_items()
+
+# プロパティ->売却価格を一定の割合に固定。デフォルトで0.25倍。これをtrueにすると売却価格ウィザードが出なくなる。offにしてから入力すると入力し直せる
+# そのモードで未入力の項目があれば、赤文字で表示する。また、未入力の項目だけ入力できるエディタを用意。
+# つまり、エディタの種類は アイテム追加、アイテムのデータを編集、未入力のデータを追加 + 割合固定用のウィザード
+
+# ======================================================================================================================================================
+
+function is_editor(mode:text) :: number:
+    # return 0 if no restrictions
+    # return 1 if movement prohibited
+    # return 2 if input required
+    if {_mode} ends with "(Normal)":
+        return 0
+    else if {_mode} ends with "(Edit)":
+        return 2
+    else if {_mode} ends with "(Inspect)":
+        return 2
+    else if {_mode} ends with "(Mode)":
+        return 1
+    return -1
+
+
+function fix_db_mode(mode:text) :: number:
+    if {_mode} is set:
+        return 1
+    loop {MODE_LIST::*}:
+        if loop-index is {_mode}:
+            return 1
+    return 0
+
+
+function footer(row:number, target:player, mode:text):
+    set {_i} to (({_row} - 1) * 9)
+    set {_q} to ({_row} * 9)
+    loop 9 times:
+        set {_item} to red_stained_glass_pane named "&c🚫&6&lクリック不可"
+        set {_name} to {footer_items::%loop-number%::name}
+        if {_name} is set:
+            if {footer_items::%loop-number%::mode} is 1:
+                if {_mode} ends with "%{footer_items::%loop-number%::name}%":
+                    set {_item} to ({footer_items::%loop-number%::id} parsed as item) named "&d%{_name}%"
+                else:
+                    set {_item} to ({footer_items::%loop-number%::id} parsed as item) named "&e%{_name}%"
+            else if {footer_items::%loop-number%::mode} is 2:
+                set {_item} to ({footer_items::%loop-number%::id} parsed as item) named "%{_name}%"
+                remove 1 from {_q}
+                set slot {_q} of {_target}'s current inventory to {_item}
+                continue
+        set slot {_i} of {_target}'s current inventory to {_item}
+        add 1 to {_i}
+
+function fill_shop_item(row:number, shop_name:text, player:player):
+    loop {_row} * 9 times:
+        set {_id} to {shop_data::%{_shop_name}%::items::%loop-number%::id}
+        if {_id} is set:
+            set {_cmd} to {shop_data::%{_shop_name}%::items::%loop-number%::custom_model_data}
+            set {_item} to {_id}
+            set custom model data of {_item} to {_cmd}
+            set slot loop-number of {_player}'s current inventory to {_id}
+
+# ======================================================================================================================================================
+# func
+on inventory click:
+    # 例外処理
+    if event-inventory is player's inventory:
+        stop
+
+    # フッターの処理
+    set {_curr_shop_title} to name of event-inventory
+    set {_title_split::*} to {_curr_shop_title} split at " "
+    set {_logo} to {_title_split::1}
+    set {_shop_name} to uncoloured {_title_split::3}
+    set {_row} to rows of event-inventory
+    if index of event-slot is between (({_row} - 1) * 9) and (({_row} * 9) - 1):
+        set {_mode} to uncoloured event-item's name
+        loop 9 times:
+            if:
+                {footer_items::%loop-number%::name} is {_mode}
+                {footer_items::%loop-number%::mode} is 1
+            then:
+                close player's inventory
+                open_shop_gui({_row}, {_logo}, {_shop_name}, {_mode}, player)
+                fill_shop_item({_row}, {_shop_name}, player)
+                footer({_row}, player, {_mode})
+                stop loop
+        cancel event
+        stop
+    
+    # type 2
+    if is_editor(uncoloured {_curr_shop_title}) is 2:
+        cancel event
+        set event-player's metadata value "edit_slot_buffer" to event-slot
+        set {_gui} to a new anvil gui named "&0%{_curr_shop_title}%" with default text "text"
+        set left item of {_gui} to paper named "&a名前入力" with lore "&aクリックで確定"
+        open anvil gui {_gui} to event-player
+    # type 0
+    wait 1 tick
+    set {_select_item} to event-slot
+    set {_select_item_id} to type of (slot (index of event-slot) of event-inventory)
+    set {_select_item_custom_model_data} to custom model data of event-slot
+    if:
+        {shop_data::%{_shop_name}%::items::%index of event-slot%::id} is {_select_item_id}
+        {shop_data::%{_shop_name}%::items::%index of event-slot%::custom_model_data} is {_select_item_custom_model_data}
+    then:
+        stop
+    else:
+        set {shop_data::%{_shop_name}%::items::%index of event-slot%::id} to {_select_item_id}
+        set {shop_data::%{_shop_name}%::items::%index of event-slot%::custom_model_data} to {_select_item_custom_model_data}
+
+# ======================================================================================================================================================
+# main
+command /delete_shop <name:text>:
+    permission: op
+    trigger:
+        copy {shop_data::%{_name}%::*} to {shop_garbage::%{_name}%::*}
+        delete {shop_data::%{_name}%::*}
+
+command /de:
+    permission: op
+    trigger:
+        delete {shop_data::*}
+
+command /edit_shop <name:text> [<row:number>] [<shop_type:text>]:
+    permission: op
+    trigger:
+        if {_name} is not set:
+            send "§7[§dSHOP_UTIL§7] §b%{_name}%§cが存在しません。§cショップ名を指定してください。" to player
+            stop
+        set {_name} to join ({_name} split by " ") using "_"
+
+        if {shop_data::%{_name}%::*} is not set:
+            if {_row} is not set:
+                send "§7[§dSHOP_UTIL§7] §b%{_name}%§cが存在しません。§c新規作成には行数(row)を指定してください。" to player
+                stop
+            if fix_db_mode({_shop_type}) is 0:
+                set {_shop_type} to "normal"
+            set {shop_data::%{_name}%::row} to {_row}
+            set {shop_data::%{_name}%::shop_type} to {_shop_type}
+            open_shop_gui({_row} + 1, {MODE_NAME_LOGO::%{_shop_type}%}, {_name}, {_mode}, player)
+            fill_shop_item({_row}, {_name}, player)
+            footer({_row} + 1, player, {_mode})
+            stop
+        
+        set {_saved_row} to {shop_data::%{_name}%::row}
+        set {_saved_type} to {shop_data::%{_name}%::shop_type}
+
+        if:
+            {_row} is set
+            {_row} is not {_saved_row}
+        then:
+            send "§7[§dSHOP_UTIL§7] §b%{_name}%§cの行数§7(§b%{_saved_row}%§7)§cが異なるため開けません。" to player
+            stop
+        if:
+            {_shop_type} is set
+            {_shop_type} is not {_saved_type}
+        then:
+            send "§7[§dSHOP_UTIL§7] §b%{_name}%§cのショップのタイプ§7(§b%{_saved_type}%§7)§cが異なるため開けません。" to player
+            stop
+
+        if {_row} is not set:
+            set {_row} to {_saved_row}
+        if {_shop_type} is not set:
+            set {_shop_type} to {_saved_type}
+
+        set {_mode} to "%{footer_items::1::name}%"
+        open_shop_gui({_row} + 1, {MODE_NAME_LOGO::%{_shop_type}%}, {_name}, {_mode}, player)
+        fill_shop_item({_row}, {_name}, player)
+        footer({_row} + 1, player, {_mode})

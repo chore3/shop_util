@@ -1,0 +1,40 @@
+variables:
+    {shop_DB::*} = 0
+
+# ======================================================================================================================================================
+# 構造体
+function init_shopitem(id:text, custom_model_data:number, name:text, description:text, buy_val:number, sell_val:number) :: objects:
+    set {_item::id} to {_id}
+    set {_item::custom_model_data} to {_number}
+    set {_item::name} to {_name}
+    set {_item::description} to {_description}
+    set {_item::buy_val} to {_buy_val}
+    set {_item::sell_val} to {_sell_val}
+    return {_item}
+
+function edit_shopitem_name(item:objects, name:text) :: objects:
+    set {_item::name} to {_name}
+    return {_item}
+
+function edit_shopitem_description(item:objects, description:text) :: objects:
+    set {_item::description} to {_description}
+    return {_item}
+
+function edit_shopitem_buy_val(item:objects, buy_val:number) :: objects:
+    set {_item::buy_val} to {_buy_val}
+    return {_item}
+
+function edit_shopitem_name(item:objects, sell_val:number) :: objects:
+    set {_item::sell_val} to {_sell_val}
+    return {_item}
+
+# ======================================================================================================================================================
+# DB操作
+function shop_item_add(item:objects):
+    set {shop_DB::%{_item::id}%::%{_item::custom_model_data}%} to {_item::buy_val}
+    set {shop_DB::%{_item::id}%::%{_item::custom_model_data}%} to {_item::sell_val}
+    set {shop_DB::%{_item::id}%::%{_item::custom_model_data}%} to {_item::name}
+    set {shop_DB::%{_item::id}%::%{_item::custom_model_data}%} to {_item::description}
+
+function shop_item_remove(id:text, custom_model_data:number):
+    delete {shop_DB::%{_item::id}%::%{_item::custom_model_data}%}

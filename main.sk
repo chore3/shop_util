@@ -1,0 +1,24 @@
+variables:
+    {GUI_ROW} = 3
+    {GUI_COLUMN} = 9
+
+# ======================================================================================================================================================
+
+function open_shop_gui(row:number, logo:text, shop_name:text, mode:text, player:player):
+    open chest inventory with {_row} row named "%{_logo}% §f| §d§n%{_shop_name}%§r §c(%{_mode}%)" to {_player}
+
+# ======================================================================================================================================================
+
+on rightclick on emerald_block:
+    if is_eventblock(event-block's location) is 1:
+        open chest inventory with ({GUI_ROW} + 1) row named "&d&lショップ" to player
+        set slot 13 of player's current inventory to stone named "Yeah"
+        set slot 53 of player's current inventory to barrier named "閉じる"
+
+on inventory click:
+    if name of clicked inventory is "&d&lショップ":
+        cancel event
+        if event-item is stone named "Yeah":
+            send "Yeah" to player
+        if event-item is barrier named "閉じる":
+            close player's inventory

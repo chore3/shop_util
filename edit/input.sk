@@ -1,0 +1,64 @@
+function open_anvil_gui(row:number, logo:text, shop_name:text, mode:text, player:player):
+    open chest inventory with {_row} row named "%{_logo}% §f| §d§n%{_shop_name}%§r §c(%{_mode}%)" to {_player}
+
+# ======================================================================================================================================================
+
+on anvil gui click:
+    set {_slot} to event-integer
+    if {_slot} is not 2:
+        stop
+
+    set {_text} to uncoloured event-text
+    set {_title} to uncoloured title of event-virtual anvil
+    set {_p} to event-player
+
+    if {_text} is "":
+        set {_text} to ""
+
+    # --- 1段階目: 名前入力 ---
+    if {_title} = "名前を入力":
+        set {_next} to a new anvil gui named "&0説明を入力" with default text "入力してください"
+        set left item of {_next} to paper named "&a説明入力" with lore "&aクリックで確定" and "&0%{_text}%"
+        open anvil gui {_next} to {_p}
+        stop
+
+    # --- 2段階目: 説明入力 ---
+    if {_title} = "説明を入力":
+        set {_prev_name} to uncoloured 2nd line of lore of left item of event-virtual anvil
+        set {_next} to a new anvil gui named "&0値段を入力" with default text "数値を入力"
+        set left item of {_next} to emerald named "&a値段入力" with lore "&aクリックで確定" and "&0%{_prev_name}%" and "&0%{_text}%"
+        open anvil gui {_next} to {_p}
+        stop
+
+    # --- 3段階目: 値段入力 ---
+    if {_title} = "値段を入力":
+        set {_name} to uncoloured 2nd line of lore of left item of event-virtual anvil
+        set {_desc} to uncoloured 3rd line of lore of left item of event-virtual anvil
+
+        set {_num} to ({_text} parsed as number)
+        if {_num} is not a number:
+            set text of event-virtual anvil to "数値を入力してください"
+            open anvil gui event-virtual anvil to {_p}
+            stop
+        else:
+            set {_price} to {_num}
+
+        close {_p}'s inventory
+
+        # --- GUIに反映 ---
+        wait 5 ticks
+        open chest inventory with 3 row named "EDIT" to player
+        wait 1 tick
+
+        # 編集スロットを取得
+        set {_slot} to {_p}'s metadata value "edit_slot_buffer"
+
+        # --- スロット更新 (アドオン非依存構文) ---
+        if {_slot} is set:
+            set {_item} to diamond named "&b%{_name}%"
+            set slot {_slot} of {_p}'s current inventory to {_item}
+
+            delete metadata value "edit_slot_buffer" of {_p}
+            send "&7[DEBUG] アイテム更新済み → スロット%{_slot}%" to {_p}
+        else:
+            send "&c[ERROR] 編集スロットが不明です。" to {_p}
