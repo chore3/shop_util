@@ -59,11 +59,7 @@ function fill_easy_db_gui(row:number, player:player):
 
 function fill_mode_gui(row:number, player:player):
     fill_glass_pane({_row}, {_player})
-    set {_mode} to "normal"
-    set slot 10 of {_player}'s current inventory to barrel named "%{MODE_LIST::%{_mode}%}% &f%{_mode}%"
-    set {_mode} to "bulk"
-    set slot 12 of {_player}'s current inventory to shulker_box named "%{MODE_LIST::%{_mode}%}% &f%{_mode}%"
-    set {_mode} to "trade"
-    set slot 14 of {_player}'s current inventory to enchanting_table named "%{MODE_LIST::%{_mode}%}% &f%{_mode}%"
-    set {_mode} to "sell_only"
-    set slot 16 of {_player}'s current inventory to composter named "%{MODE_LIST::%{_mode}%}% &f%{_mode}%"
+    set slot 10 of {_player}'s current inventory to mode_item(barrel, "normal")
+    set slot 12 of {_player}'s current inventory to mode_item(shulker_box, "bulk")
+    set slot 14 of {_player}'s current inventory to mode_item(enchanting_table, "trade")
+    set slot 16 of {_player}'s current inventory to mode_item(composter, "sell_only")
